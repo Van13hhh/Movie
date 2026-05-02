@@ -8,7 +8,7 @@ import android.os.Looper
 import com.example.movie.util.Creator
 import com.example.movie.R
 import com.example.movie.ui.poster.PosterActivity
-class MoviesActivity : Activity() {
+class MoviesActivity : Activity(), MovieView {
     companion object {
         private const val CLICK_DEBOUNCE_DELAY = 1000L
     }
