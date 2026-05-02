@@ -18,7 +18,7 @@ import com.example.movie.domain.api.MoviesInteractor
 import com.example.movie.domain.models.Movie
 import com.example.movie.ui.movies.MoviesAdapter
 
-class MoviesSearchController(private val activity: Activity, private val adapter: MoviesAdapter) {
+class MoviesSearchPresenter(private val activity: Activity, private val adapter: MoviesAdapter) {
     private val moviesInteractor = Creator.provideMoviesInteractor(activity )
 
     companion object {
