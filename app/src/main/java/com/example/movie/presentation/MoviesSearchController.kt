@@ -12,7 +12,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.movie.Creator
+import com.example.movie.util.Creator
 import com.example.movie.R
 import com.example.movie.domain.api.MoviesInteractor
 import com.example.movie.domain.models.Movie
@@ -78,15 +78,17 @@ class MoviesSearchController(private val activity: Activity, private val adapter
             progressBar.visibility = View.VISIBLE
 
             moviesInteractor.searchMovies(queryInput.text.toString(), object : MoviesInteractor.MoviesConsumer {
-                override fun consume(foundMovies: List<Movie>) {
+                override fun consume(foundMovies: List<Movie>?, errorMessage: String?) {
                     handler.post {
                         progressBar.visibility = View.GONE
-                        movies.clear()
-                        movies.addAll(foundMovies)
-                        moviesList.visibility = View.VISIBLE
-                        adapter.notifyDataSetChanged()
-                        if (movies.isEmpty()) {
-                            showMessage(activity.getString(R.string.nothing_found), "")
+                        if (foundMovies != null) {
+                            movies.clear()
+                            movies.addAll(foundMovies)
+                            adapter.notifyDataSetChanged()
+                            moviesList.visibility = View.VISIBLE
+                        }
+                        if (errorMessage != null) {
+                            showMessage(errorMessage, errorMessage)
                         } else {
                             hideMessage()
                         }
