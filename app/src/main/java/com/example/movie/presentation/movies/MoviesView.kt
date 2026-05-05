@@ -1,12 +1,10 @@
 package com.example.movie.presentation.movies
 
-import com.example.movie.domain.models.Movie
+import com.example.movie.ui.movies.MoviesState
 
 interface MoviesView {
-    fun showPlaceholderMessage(isVisible: Boolean)
-    fun showMoviesList(isVisible: Boolean)
-    fun showProgressBar(isVisible: Boolean)
-    fun changePlaceholderText(text: String)
-    fun updateMovieList(newMoviesList: List<Movie>)
-    fun showMessage(text: String)
+    fun render(state: MoviesState)
+
+    // One-time event methods
+    fun showToast(additionalMessage: String)
 }

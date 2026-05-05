@@ -7,6 +7,7 @@ import android.os.Looper
 import com.example.movie.R
 import com.example.movie.domain.api.MoviesInteractor
 import com.example.movie.domain.models.Movie
+import com.example.movie.ui.movies.MoviesState
 import com.example.movie.util.Creator
 
 class MoviesSearchPresenter(private val view: MoviesView, private val context: Context) {
@@ -28,27 +29,33 @@ class MoviesSearchPresenter(private val view: MoviesView, private val context: C
 
     private fun searchRequest(newSearchText: String) {
         if (newSearchText.isNotEmpty()) {
-            view.showPlaceholderMessage(false)
-            view.showMoviesList(false)
-           view.showProgressBar(true)
+            view.render(
+                    MoviesState.Loading
+            )
 
             moviesInteractor.searchMovies(newSearchText, object : MoviesInteractor.MoviesConsumer {
                 @SuppressLint("NotifyDataSetChanged")
                 override fun consume(foundMovies: List<Movie>?, errorMessage: String?) {
                     handler.post {
-                        view.showProgressBar(false)
                         if (foundMovies != null) {
                             movies.clear()
                             movies.addAll(foundMovies)
-                            view.updateMovieList(movies)
-                            view.showMoviesList(true)
                         }
-                        if(errorMessage != null){
-                            showMessage(context.getString(R.string.nothing_found), errorMessage)
-                        }else if (movies.isEmpty()) {
-                            showMessage(context.getString(R.string.nothing_found), "")
+                        if (errorMessage != null) {
+                            view.showToast(errorMessage)
+                            view.render(MoviesState.Error(
+                                context.getString(R.string.something_went_wrong)
+                            ))
+                        } else if (movies.isEmpty()) {
+                            view.render(
+                                MoviesState.Empty(
+                                    context.getString(R.string.something_went_wrong)
+                                )
+                            )
                         } else {
-                            hideMessage()
+                            view.render(MoviesState.Content(
+                                movies
+                            ))
                         }
                     }
                 }
@@ -62,23 +69,5 @@ class MoviesSearchPresenter(private val view: MoviesView, private val context: C
 
     fun onDestroy() {
         handler.removeCallbacks(searchRunnable)
-    }
-    @SuppressLint("NotifyDataSetChanged")
-    private fun showMessage(text: String, additionalMessage: String) {
-        if (text.isNotEmpty()) {
-            view.showPlaceholderMessage(true)
-            movies.clear()
-            view.updateMovieList(movies)
-            view.changePlaceholderText(text)
-            if (additionalMessage.isNotEmpty()) {
-                view.showMessage(additionalMessage)
-            }
-        } else {
-            view.showPlaceholderMessage(false)
-        }
-    }
-
-    private fun hideMessage() {
-        view.showPlaceholderMessage(false)
     }
 }

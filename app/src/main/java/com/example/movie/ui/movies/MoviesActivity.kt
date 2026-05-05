@@ -8,11 +8,11 @@ import android.os.Handler
 import android.os.Looper
 import android.text.Editable
 import android.text.TextWatcher
+import android.view.View
 import android.widget.EditText
 import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
-import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.movie.util.Creator
@@ -91,30 +91,40 @@ class MoviesActivity : Activity(), MoviesView {
         return current
     }
 
-    override fun showPlaceholderMessage(isVisible: Boolean) {
-        placeholderMessage.isVisible = isVisible
+    fun showLoading() {
+        moviesList.visibility = View.GONE
+        placeholderMessage.visibility = View.GONE
+        progressBar.visibility = View.VISIBLE
     }
 
-    override fun showMoviesList(isVisible: Boolean) {
-        moviesList.isVisible = isVisible
-    }
-
-    override fun showProgressBar(isVisible: Boolean) {
-        progressBar.isVisible = isVisible
-    }
-
-    override fun changePlaceholderText(text: String) {
-        placeholderMessage.text = text
+    fun showError(errorMessage: String) {
+        moviesList.visibility = View.GONE
+        placeholderMessage.visibility = View.VISIBLE
+        progressBar.visibility = View.GONE
+        placeholderMessage.text = errorMessage
     }
 
     @SuppressLint("NotifyDataSetChanged")
-    override fun updateMovieList(newMoviesList: List<Movie>) {
+    fun showContent(movies: List<Movie>) {
+        moviesList.visibility = View.VISIBLE
+        placeholderMessage.visibility = View.GONE
+        progressBar.visibility = View.GONE
+
         adapter.movies.clear()
-        adapter.movies.addAll(newMoviesList)
+        adapter.movies.addAll(movies)
         adapter.notifyDataSetChanged()
     }
 
-    override fun showMessage(text: String) {
-        Toast.makeText(this, text, Toast.LENGTH_LONG).show()
+    override fun render(state: MoviesState) {
+        when(state){
+            MoviesState.Loading -> showLoading()
+            is MoviesState.Content -> showContent(state.movies)
+            is MoviesState.Empty -> showError(state.message)
+            is MoviesState.Error -> showError(state.errorMessage)
+        }
+    }
+
+    override fun showToast(additionalMessage: String) {
+        Toast.makeText(this, additionalMessage, Toast.LENGTH_LONG).show()
     }
 }
