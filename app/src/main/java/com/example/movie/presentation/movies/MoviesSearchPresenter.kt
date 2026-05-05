@@ -10,11 +10,23 @@ import com.example.movie.domain.models.Movie
 import com.example.movie.ui.movies.MoviesState
 import com.example.movie.util.Creator
 
-class MoviesSearchPresenter(private val view: MoviesView, private val context: Context) {
+class MoviesSearchPresenter(private val context: Context) {
     private val moviesInteractor = Creator.provideMoviesInteractor(context)
     private val handler = Handler(Looper.getMainLooper())
     private var lastSearchText: String? = null
     private val movies = ArrayList<Movie>()
+    private var view: MoviesView? = null
+    private var state: MoviesState? = null
+    private val latestSearchText: String? = null
+
+    fun attachView(view: MoviesView){
+        this.view = view
+        state?.let { view.render(it) }
+    }
+
+    fun detachView(){
+        this.view = null
+    }
 
     private val searchRunnable = Runnable {
         val newSearchText = lastSearchText ?: ""
@@ -22,6 +34,11 @@ class MoviesSearchPresenter(private val view: MoviesView, private val context: C
     }
 
     fun searchDebounce(changedText: String) {
+        if (latestSearchText == changedText) {
+            return
+        }
+
+        this.lastSearchText = changedText
         lastSearchText = changedText
         handler.removeCallbacks(searchRunnable)
         handler.postDelayed(searchRunnable, SEARCH_DEBOUNCE_DELAY)
@@ -29,9 +46,7 @@ class MoviesSearchPresenter(private val view: MoviesView, private val context: C
 
     private fun searchRequest(newSearchText: String) {
         if (newSearchText.isNotEmpty()) {
-            view.render(
-                    MoviesState.Loading
-            )
+            renderState(MoviesState.Loading)
 
             moviesInteractor.searchMovies(newSearchText, object : MoviesInteractor.MoviesConsumer {
                 @SuppressLint("NotifyDataSetChanged")
@@ -42,25 +57,34 @@ class MoviesSearchPresenter(private val view: MoviesView, private val context: C
                             movies.addAll(foundMovies)
                         }
                         if (errorMessage != null) {
-                            view.showToast(errorMessage)
-                            view.render(MoviesState.Error(
-                                context.getString(R.string.something_went_wrong)
-                            ))
+                            view?.showToast(errorMessage)
+                            renderState(
+                                MoviesState.Error(
+                                    context.getString(R.string.something_went_wrong),
+                                )
+                            )
                         } else if (movies.isEmpty()) {
-                            view.render(
+                            renderState(
                                 MoviesState.Empty(
-                                    context.getString(R.string.something_went_wrong)
+                                    context.getString(R.string.nothing_found),
                                 )
                             )
                         } else {
-                            view.render(MoviesState.Content(
-                                movies
-                            ))
+                            renderState(
+                                MoviesState.Content(
+                                    movies,
+                                )
+                            )
                         }
                     }
                 }
             })
         }
+    }
+
+    private fun renderState(state: MoviesState) {
+        this.state = state
+        this.view?.render(state)
     }
 
     companion object {

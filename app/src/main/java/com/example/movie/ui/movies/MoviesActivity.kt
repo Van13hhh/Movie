@@ -15,9 +15,11 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.movie.MoviesApplication
 import com.example.movie.util.Creator
 import com.example.movie.R
 import com.example.movie.domain.models.Movie
+import com.example.movie.presentation.movies.MoviesSearchPresenter
 import com.example.movie.presentation.movies.MoviesView
 import com.example.movie.ui.poster.PosterActivity
 
@@ -42,8 +44,9 @@ class MoviesActivity : Activity(), MoviesView {
 
     private var isClickAllowed = true
     private val handler = Handler(Looper.getMainLooper())
-    private val moviesSearchPresenter = Creator.provideMoviesSearchPresenter(this, this)
     private var textWatcher: TextWatcher? = null
+    private var moviesSearchPresenter: MoviesSearchPresenter? = null
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -56,13 +59,23 @@ class MoviesActivity : Activity(), MoviesView {
 
         moviesList.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
         moviesList.adapter = adapter
+        moviesSearchPresenter =
+            (this.applicationContext as? MoviesApplication)?.moviesSearchPresenter
+        if (moviesSearchPresenter == null) {
+            moviesSearchPresenter = Creator.provideMoviesSearchPresenter(
+                this.applicationContext
+            )
+            (this.applicationContext as? MoviesApplication)?.moviesSearchPresenter =
+                moviesSearchPresenter
+        }
+        moviesSearchPresenter?.attachView(this)
 
         queryInput.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
             }
 
             override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-                moviesSearchPresenter.searchDebounce(
+                moviesSearchPresenter?.searchDebounce(
                     changedText = p0?.toString() ?: ""
                 )
             }
@@ -78,8 +91,37 @@ class MoviesActivity : Activity(), MoviesView {
     override fun onDestroy() {
         super.onDestroy()
         textWatcher?.let { queryInput.removeTextChangedListener(it) }
-        moviesSearchPresenter.onDestroy()
+        moviesSearchPresenter?.detachView()
+        moviesSearchPresenter?.onDestroy()
+        if (isFinishing) {
+            (this.application as? MoviesApplication)?.moviesSearchPresenter = null
 
+        }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        moviesSearchPresenter?.attachView(this)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        moviesSearchPresenter?.attachView(this)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        moviesSearchPresenter?.detachView()
+    }
+
+    override fun onStop() {
+        super.onStop()
+        moviesSearchPresenter?.detachView()
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        moviesSearchPresenter?.detachView()
     }
 
     private fun clickDebounce(): Boolean {
@@ -116,7 +158,7 @@ class MoviesActivity : Activity(), MoviesView {
     }
 
     override fun render(state: MoviesState) {
-        when(state){
+        when (state) {
             MoviesState.Loading -> showLoading()
             is MoviesState.Content -> showContent(state.movies)
             is MoviesState.Empty -> showError(state.message)
