@@ -1,7 +1,6 @@
 package com.example.movie.ui.movies
 
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
@@ -15,20 +14,32 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.movie.MoviesApplication
 import com.example.movie.util.Creator
 import com.example.movie.R
 import com.example.movie.domain.models.Movie
 import com.example.movie.presentation.movies.MoviesSearchPresenter
 import com.example.movie.presentation.movies.MoviesView
 import com.example.movie.ui.poster.PosterActivity
+import moxy.MvpActivity
+import moxy.presenter.InjectPresenter
+import moxy.presenter.ProvidePresenter
 
-class MoviesActivity : Activity(), MoviesView {
+class MoviesActivity : MvpActivity(), MoviesView {
 
     private lateinit var queryInput: EditText
     private lateinit var placeholderMessage: TextView
     private lateinit var moviesList: RecyclerView
     private lateinit var progressBar: ProgressBar
+
+    @InjectPresenter
+    lateinit var moviesSearchPresenter: MoviesSearchPresenter
+
+    @ProvidePresenter
+    fun providePresenter(): MoviesSearchPresenter {
+        return Creator.provideMoviesSearchPresenter(
+            context = this.applicationContext,
+        )
+    }
 
     companion object {
         private const val CLICK_DEBOUNCE_DELAY = 1000L
@@ -45,7 +56,6 @@ class MoviesActivity : Activity(), MoviesView {
     private var isClickAllowed = true
     private val handler = Handler(Looper.getMainLooper())
     private var textWatcher: TextWatcher? = null
-    private var moviesSearchPresenter: MoviesSearchPresenter? = null
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -59,24 +69,14 @@ class MoviesActivity : Activity(), MoviesView {
 
         moviesList.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
         moviesList.adapter = adapter
-        moviesSearchPresenter =
-            (this.applicationContext as? MoviesApplication)?.moviesSearchPresenter
-        if (moviesSearchPresenter == null) {
-            moviesSearchPresenter = Creator.provideMoviesSearchPresenter(
-                this.applicationContext
-            )
-            (this.applicationContext as? MoviesApplication)?.moviesSearchPresenter =
-                moviesSearchPresenter
-        }
-        moviesSearchPresenter?.attachView(this)
 
         queryInput.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
             }
 
             override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-                moviesSearchPresenter?.searchDebounce(
-                    changedText = p0?.toString() ?: ""
+                moviesSearchPresenter.searchDebounce(
+                    p0?.toString() ?: ""
                 )
             }
 
@@ -86,42 +86,6 @@ class MoviesActivity : Activity(), MoviesView {
         })
         textWatcher?.let { queryInput.addTextChangedListener(it) }
 
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        textWatcher?.let { queryInput.removeTextChangedListener(it) }
-        moviesSearchPresenter?.detachView()
-        moviesSearchPresenter?.onDestroy()
-        if (isFinishing) {
-            (this.application as? MoviesApplication)?.moviesSearchPresenter = null
-
-        }
-    }
-
-    override fun onStart() {
-        super.onStart()
-        moviesSearchPresenter?.attachView(this)
-    }
-
-    override fun onResume() {
-        super.onResume()
-        moviesSearchPresenter?.attachView(this)
-    }
-
-    override fun onPause() {
-        super.onPause()
-        moviesSearchPresenter?.detachView()
-    }
-
-    override fun onStop() {
-        super.onStop()
-        moviesSearchPresenter?.detachView()
-    }
-
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-        moviesSearchPresenter?.detachView()
     }
 
     private fun clickDebounce(): Boolean {

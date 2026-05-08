@@ -9,24 +9,14 @@ import com.example.movie.domain.api.MoviesInteractor
 import com.example.movie.domain.models.Movie
 import com.example.movie.ui.movies.MoviesState
 import com.example.movie.util.Creator
+import moxy.MvpPresenter
 
-class MoviesSearchPresenter(private val context: Context) {
+class MoviesSearchPresenter(private val context: Context): MvpPresenter<MoviesView>() {
     private val moviesInteractor = Creator.provideMoviesInteractor(context)
     private val handler = Handler(Looper.getMainLooper())
     private var lastSearchText: String? = null
     private val movies = ArrayList<Movie>()
-    private var view: MoviesView? = null
-    private var state: MoviesState? = null
     private val latestSearchText: String? = null
-
-    fun attachView(view: MoviesView){
-        this.view = view
-        state?.let { view.render(it) }
-    }
-
-    fun detachView(){
-        this.view = null
-    }
 
     private val searchRunnable = Runnable {
         val newSearchText = lastSearchText ?: ""
@@ -57,7 +47,7 @@ class MoviesSearchPresenter(private val context: Context) {
                             movies.addAll(foundMovies)
                         }
                         if (errorMessage != null) {
-                            view?.showToast(errorMessage)
+                            viewState?.showToast(errorMessage)
                             renderState(
                                 MoviesState.Error(
                                     context.getString(R.string.something_went_wrong),
@@ -83,15 +73,14 @@ class MoviesSearchPresenter(private val context: Context) {
     }
 
     private fun renderState(state: MoviesState) {
-        this.state = state
-        this.view?.render(state)
+        viewState.render(state)
     }
 
     companion object {
         private const val SEARCH_DEBOUNCE_DELAY = 2000L
     }
 
-    fun onDestroy() {
+    override fun onDestroy() {
         handler.removeCallbacks(searchRunnable)
     }
 }
