@@ -13,20 +13,21 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Movie">
         <activity
-            android:name=".ui.movies.activity.MoviesActivity"
-            android:exported="true">
+            android:name=".ui.details.activity.PosterActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.cast.activity.CastActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.root.RootActivity"
+            android:exported="true" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".ui.poster.activity.PosterActivity"
-            android:exported="false" />
-        <activity
-            android:name=".ui.cast.activity.CastActivity"
-            android:exported="false" />
+
     </application>
 
 </manifest>

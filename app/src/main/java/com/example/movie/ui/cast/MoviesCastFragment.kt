@@ -1,25 +1,39 @@
-package com.example.movie.ui.cast.activity
+package com.example.movie.ui.cast
 
-import android.content.Context
-import android.content.Intent
 import android.os.Bundle
-import androidx.appcompat.app.AppCompatActivity
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import androidx.core.view.isVisible
+import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.movie.databinding.MoviesCastBinding
-import com.example.movie.ui.cast.movieCastHeaderDelegate
-import com.example.movie.ui.cast.movieCastPersonDelegate
+import com.example.movie.databinding.FragmentMoviesCastBinding
 import com.example.movie.ui.cast.view_model.MovieCastViewModel
 import com.example.movie.ui.cast.view_model.MoviesCastState
 import com.hannesdorfmann.adapterdelegates4.ListDelegationAdapter
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.core.parameter.parametersOf
+import kotlin.getValue
 
-class CastActivity: AppCompatActivity() {
-    private lateinit var binding: MoviesCastBinding
+class MoviesCastFragment : Fragment() {
+
+    companion object {
+        const val KEY = "movie_id"
+        const val TAG = "CAST_TAG"
+
+        fun newInstance(movieId: String): MoviesCastFragment {
+            return MoviesCastFragment().apply {
+                arguments = Bundle().apply {
+                    putString(KEY, movieId)
+                }
+            }
+        }
+    }
+
+    private lateinit var binding: FragmentMoviesCastBinding
 
     private val moviesCastViewModel: MovieCastViewModel by viewModel {
-        parametersOf(intent.getStringExtra("movie_id"))
+        parametersOf(requireArguments().getString(KEY))
     }
 
     private val adapter = ListDelegationAdapter(
@@ -27,17 +41,21 @@ class CastActivity: AppCompatActivity() {
         movieCastPersonDelegate(),
     )
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        binding = FragmentMoviesCastBinding.inflate(inflater, container, false)
+        return binding.root
+    }
 
-        binding = MoviesCastBinding.inflate(layoutInflater)
-        setContentView(binding.root)
-
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         binding.moviesCastRecyclerView.adapter = adapter
-        binding.moviesCastRecyclerView.layoutManager = LinearLayoutManager(this)
+        binding.moviesCastRecyclerView.layoutManager = LinearLayoutManager(requireContext())
 
-        moviesCastViewModel.observeState().observe(this){
-            when(it){
+        moviesCastViewModel.observeState().observe(viewLifecycleOwner) {
+            when (it) {
                 is MoviesCastState.Content -> showContent(it)
                 is MoviesCastState.Error -> showError(it)
                 MoviesCastState.Loading -> showLoading()

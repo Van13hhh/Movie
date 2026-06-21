@@ -1,17 +1,16 @@
-package com.example.movie.ui.poster.fragments
+package com.example.movie.ui.details.fragments
 
-import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.app.ShareCompat
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.commit
+import com.example.movie.R
 import com.example.movie.data.dto.response.MovieDetailsResponse
 import com.example.movie.databinding.FragmentAboutBinding
-import com.example.movie.ui.cast.activity.CastActivity
-import com.example.movie.ui.poster.view_model.AboutViewModel
+import com.example.movie.ui.cast.MoviesCastFragment
+import com.example.movie.ui.details.view_model.AboutViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.core.parameter.parametersOf
 
@@ -54,9 +53,16 @@ class AboutFragment : Fragment() {
         }
 
         binding.btnCast.setOnClickListener {
-            val intent = Intent(context, CastActivity::class.java)
-            intent.putExtra(MOVIE_ID, arguments?.getString(MOVIE_ID))
-            startActivity(intent)
+            parentFragment?.parentFragmentManager?.commit {
+                replace(
+                    R.id.rootFragmentContainerView,
+                    MoviesCastFragment.newInstance(
+                        movieId = requireArguments().getString(MOVIE_ID).orEmpty()
+                    ),
+                    MoviesCastFragment.TAG
+                )
+                addToBackStack(MoviesCastFragment.TAG)
+            }
         }
     }
 
