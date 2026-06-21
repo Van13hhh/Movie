@@ -1,4 +1,4 @@
-package com.example.movie.presentation.movies
+package com.example.movie.ui.movies.view_model
 
 import android.content.Context
 import android.os.Handler
@@ -7,28 +7,17 @@ import android.os.SystemClock
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
-import androidx.lifecycle.viewmodel.initializer
-import androidx.lifecycle.viewmodel.viewModelFactory
-import com.example.movie.MoviesApplication
 import com.example.movie.R
 import com.example.movie.domain.api.MoviesInteractor
 import com.example.movie.domain.models.Movie
-import com.example.movie.presentation.movies.MoviesState
-import com.example.movie.util.Creator
+import com.example.movie.ui.movies.view_model.SingleLiveEvent
+import com.example.movie.ui.movies.MoviesState
 
-class MoviesViewModel(private val context: Context): ViewModel() {
+class MoviesViewModel(private val moviesInteractor: MoviesInteractor, private val context: Context): ViewModel() {
     companion object {
         private const val SEARCH_DEBOUNCE_DELAY = 2000L
         private val SEARCH_REQUEST_TOKEN = Any()
 
-        fun getFactory(): ViewModelProvider.Factory = viewModelFactory {
-            initializer {
-                val app = (this[APPLICATION_KEY] as MoviesApplication)
-                MoviesViewModel(app)
-            }
-        }
     }
 
     private val stateLiveData = MutableLiveData<MoviesState>()
@@ -36,8 +25,6 @@ class MoviesViewModel(private val context: Context): ViewModel() {
 
     private val showToast = SingleLiveEvent<String?>()
     fun observeShowToast(): LiveData<String?> = showToast
-
-    private val moviesInteractor = Creator.provideMoviesInteractor(context)
 
     private var latestSearchText: String? = null
 
@@ -89,9 +76,16 @@ class MoviesViewModel(private val context: Context): ViewModel() {
                             }
 
                             movies.isEmpty() -> {
+                                movies.add(
+                                    Movie(
+                                        "1111", "LOL",
+                                        "https://www.manhunter.ru/upload/1c/2d/1c2db3a873b6441d286f902b03926939.jpg",
+                                        "Home alone", "Good Film"
+                                    )
+                                )
                                 renderState(
-                                    MoviesState.Empty(
-                                        message = context.getString(R.string.nothing_found),
+                                    MoviesState.Content(
+                                        movies = movies
                                     )
                                 )
                             }

@@ -1,4 +1,4 @@
-package com.example.movie.presentation.movies
+package com.example.movie.ui.movies
 
 import com.example.movie.domain.models.Movie
 
