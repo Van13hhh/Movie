@@ -1,4 +1,4 @@
-package com.example.movie.ui.details
+package com.example.movie.ui.details.fragments
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -7,7 +7,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.example.movie.R
 import com.example.movie.databinding.FragmentDetailsBinding
-import com.example.movie.ui.details.activity.DetailsViewPagerAdapter
+import com.example.movie.ui.details.DetailsViewPagerAdapter
 import com.google.android.material.tabs.TabLayoutMediator
 
 class DetailsFragment: Fragment() {

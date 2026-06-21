@@ -19,7 +19,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.movie.R
 import com.example.movie.databinding.FragmentMoviesBinding
 import com.example.movie.domain.models.Movie
-import com.example.movie.ui.details.DetailsFragment
+import com.example.movie.ui.details.fragments.DetailsFragment
 import com.example.movie.ui.movies.activity.MoviesAdapter
 import com.example.movie.ui.movies.view_model.MoviesViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel

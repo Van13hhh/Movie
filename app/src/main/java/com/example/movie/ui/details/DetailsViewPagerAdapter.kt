@@ -1,11 +1,11 @@
-package com.example.movie.ui.details.activity
+package com.example.movie.ui.details
 
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.Lifecycle
 import androidx.viewpager2.adapter.FragmentStateAdapter
-import com.example.movie.ui.details.fragments.PosterFragment
 import com.example.movie.ui.details.fragments.AboutFragment
+import com.example.movie.ui.details.fragments.PosterFragment
 
 class DetailsViewPagerAdapter(
     fragmentManager: FragmentManager,
@@ -20,8 +20,8 @@ class DetailsViewPagerAdapter(
 
     override fun createFragment(position: Int): Fragment {
         return when(position) {
-            0 -> PosterFragment.newInstance(posterUrl)
-            else -> AboutFragment.newInstance(movieId)
+            0 -> PosterFragment.Companion.newInstance(posterUrl)
+            else -> AboutFragment.Companion.newInstance(movieId)
         }
     }
 }
