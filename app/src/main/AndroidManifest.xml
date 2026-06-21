@@ -13,7 +13,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Movie">
         <activity
-            android:name=".ui.movies.MoviesActivity"
+            android:name=".ui.movies.activity.MoviesActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -22,7 +22,10 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".ui.poster.PosterActivity"
+            android:name=".ui.poster.activity.PosterActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.cast.activity.CastActivity"
             android:exported="false" />
     </application>
 
