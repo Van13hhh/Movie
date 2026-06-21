@@ -76,16 +76,9 @@ class MoviesViewModel(private val moviesInteractor: MoviesInteractor, private va
                             }
 
                             movies.isEmpty() -> {
-                                movies.add(
-                                    Movie(
-                                        "1111", "LOL",
-                                        "https://www.manhunter.ru/upload/1c/2d/1c2db3a873b6441d286f902b03926939.jpg",
-                                        "Home alone", "Good Film"
-                                    )
-                                )
                                 renderState(
-                                    MoviesState.Content(
-                                        movies = movies
+                                    MoviesState.Error(
+                                        errorMessage = "Empty"
                                     )
                                 )
                             }

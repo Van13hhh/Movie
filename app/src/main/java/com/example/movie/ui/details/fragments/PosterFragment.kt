@@ -1,4 +1,4 @@
-package com.example.movie.ui.poster.fragments
+package com.example.movie.ui.details.fragments
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -7,7 +7,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.bumptech.glide.Glide
 import com.example.movie.databinding.FragmentPosterBinding
-import com.example.movie.ui.poster.view_model.PosterViewModel
+import com.example.movie.ui.details.view_model.PosterViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.core.parameter.parametersOf
 

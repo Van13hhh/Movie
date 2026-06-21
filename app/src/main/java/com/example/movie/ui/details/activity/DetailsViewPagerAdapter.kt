@@ -1,11 +1,11 @@
-package com.example.movie.ui.poster.activity
+package com.example.movie.ui.details.activity
 
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.Lifecycle
 import androidx.viewpager2.adapter.FragmentStateAdapter
-import com.example.movie.ui.poster.fragments.PosterFragment
-import com.example.movie.ui.poster.fragments.AboutFragment
+import com.example.movie.ui.details.fragments.PosterFragment
+import com.example.movie.ui.details.fragments.AboutFragment
 
 class DetailsViewPagerAdapter(
     fragmentManager: FragmentManager,
