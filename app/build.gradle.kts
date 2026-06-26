@@ -33,14 +33,13 @@ android {
     buildFeatures{
         viewBinding = true
     }
-    kotlinOptions {
-        jvmTarget = "11"
-    }
 }
 
 dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
+    implementation(libs.androidx.navigation.fragment.ktx)
+    implementation(libs.androidx.navigation.ui.ktx)
     implementation(libs.core.ktx)
     implementation(libs.material)
     implementation(libs.androidx.activity)
@@ -50,7 +49,6 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.10.0")
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.10.0")
     implementation("androidx.activity:activity-ktx:1.13.0")
-
     // Koin
     implementation("io.insert-koin:koin-android:4.2.1")
 
@@ -58,10 +56,8 @@ dependencies {
     implementation("com.squareup.retrofit2:retrofit:3.0.0")
     implementation("com.squareup.retrofit2:converter-gson:3.0.0")
     implementation("com.squareup.okhttp3:logging-interceptor:5.4.0")
-
     // Glide
     implementation("com.github.bumptech.glide:glide:5.0.7")
-
     // AdapterDelegates
     implementation("com.hannesdorfmann:adapterdelegates4-kotlin-dsl:4.3.2")
     implementation("com.hannesdorfmann:adapterdelegates4-kotlin-dsl-viewbinding:4.3.2")
@@ -70,4 +66,7 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+    //Jetpack Navigation Component
+    implementation("androidx.navigation:navigation-fragment-ktx:2.5.3")
+    implementation("androidx.navigation:navigation-ui-ktx:2.5.3")
 }

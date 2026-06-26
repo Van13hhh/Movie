@@ -1,5 +1,6 @@
 package com.example.movie.ui.cast
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -18,22 +19,18 @@ import kotlin.getValue
 class MoviesCastFragment : Fragment() {
 
     companion object {
-        const val KEY = "movie_id"
-        const val TAG = "CAST_TAG"
+        const val ARGS_MOVIE_ID = "movie_id"
 
-        fun newInstance(movieId: String): MoviesCastFragment {
-            return MoviesCastFragment().apply {
-                arguments = Bundle().apply {
-                    putString(KEY, movieId)
-                }
+        fun createArgs(movieId: String): Bundle =
+            Bundle().apply {
+                putString(ARGS_MOVIE_ID, movieId)
             }
-        }
     }
 
     private lateinit var binding: FragmentMoviesCastBinding
 
     private val moviesCastViewModel: MovieCastViewModel by viewModel {
-        parametersOf(requireArguments().getString(KEY))
+        parametersOf(requireArguments().getString(ARGS_MOVIE_ID))
     }
 
     private val adapter = ListDelegationAdapter(
@@ -78,6 +75,7 @@ class MoviesCastFragment : Fragment() {
         binding.errorMessageTextView.text = state.message
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     private fun showContent(state: MoviesCastState.Content) {
         binding.progressBar.isVisible = false
         binding.errorMessageTextView.isVisible = false

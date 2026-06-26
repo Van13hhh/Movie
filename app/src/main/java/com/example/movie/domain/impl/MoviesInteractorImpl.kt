@@ -23,7 +23,7 @@ class MoviesInteractorImpl(private val repository: MoviesRepository) : MoviesInt
 
         executor.execute {
             Log.d("DEBUG_INTERACTOR", "Запрос в репозиторий...")
-            when(val resource = repository.getMovieInfo(id)){
+            when(val resource = repository.getMovieDetails(id)){
                 is Resource.Success -> {
                     Log.d("DEBUG_INTERACTOR", "Успех: ${resource.data?.title}")
                     consumer.consume(resource.data, null)

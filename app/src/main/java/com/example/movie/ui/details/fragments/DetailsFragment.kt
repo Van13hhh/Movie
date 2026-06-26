@@ -9,6 +9,7 @@ import com.example.movie.R
 import com.example.movie.databinding.FragmentDetailsBinding
 import com.example.movie.ui.details.DetailsViewPagerAdapter
 import com.google.android.material.tabs.TabLayoutMediator
+import kotlin.apply
 
 class DetailsFragment: Fragment() {
 
@@ -16,16 +17,11 @@ class DetailsFragment: Fragment() {
         private const val ARGS_MOVIE_ID = "movie_id"
         private const val ARGS_POSTER_URL = "poster_url"
 
-        const val TAG = "DetailsFragment"
-
-        fun newInstance(movieId: String, posterUrl: String): Fragment {
-            return DetailsFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARGS_MOVIE_ID, movieId)
-                    putString(ARGS_POSTER_URL, posterUrl)
-                }
+        fun createArgs(movieId: String, posterUrl: String): Bundle =
+            Bundle().apply {
+                putString(ARGS_MOVIE_ID, movieId)
+                putString(ARGS_POSTER_URL, posterUrl)
             }
-        }
     }
     private lateinit var binding: FragmentDetailsBinding
     private lateinit var tabMediator: TabLayoutMediator

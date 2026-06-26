@@ -1,5 +1,6 @@
-package com.example.movie.ui.movies
+package com.example.movie.ui.movies.fragments
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -13,14 +14,15 @@ import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.commit
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.movie.R
 import com.example.movie.databinding.FragmentMoviesBinding
 import com.example.movie.domain.models.Movie
 import com.example.movie.ui.details.fragments.DetailsFragment
-import com.example.movie.ui.movies.activity.MoviesAdapter
+import com.example.movie.ui.movies.MoviesAdapter
+import com.example.movie.ui.movies.MoviesState
 import com.example.movie.ui.movies.view_model.MoviesViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
@@ -34,16 +36,12 @@ class MoviesFragment : Fragment() {
 
     private val adapter = MoviesAdapter { movie ->
         if (clickDebounce()) {
-            parentFragmentManager.commit {
-                replace(
-                    R.id.rootFragmentContainerView,
-                    DetailsFragment.newInstance(movie.id, movie.image)
-                )
-                addToBackStack(DetailsFragment.TAG)
-            }
+            findNavController().navigate(
+                R.id.action_moviesFragment2_to_detailsFragment2,
+                DetailsFragment.createArgs(movie.id, movie.image)
+            )
         }
     }
-
     private val handler = Handler(Looper.getMainLooper())
 
     private lateinit var binding: FragmentMoviesBinding
@@ -135,6 +133,7 @@ class MoviesFragment : Fragment() {
         showError(emptyMessage)
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     private fun showContent(movies: List<Movie>) {
         moviesList.visibility = View.VISIBLE
         placeholderMessage.visibility = View.GONE
@@ -155,4 +154,3 @@ class MoviesFragment : Fragment() {
     }
 
 }
-

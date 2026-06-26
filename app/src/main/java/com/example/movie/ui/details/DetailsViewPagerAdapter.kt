@@ -20,8 +20,8 @@ class DetailsViewPagerAdapter(
 
     override fun createFragment(position: Int): Fragment {
         return when(position) {
-            0 -> PosterFragment.Companion.newInstance(posterUrl)
-            else -> AboutFragment.Companion.newInstance(movieId)
+            0 -> PosterFragment.newInstance(posterUrl)
+            else -> AboutFragment.newInstance(movieId)
         }
     }
 }

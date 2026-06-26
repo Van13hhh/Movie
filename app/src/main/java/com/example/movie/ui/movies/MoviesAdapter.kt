@@ -1,10 +1,8 @@
-package com.example.movie.ui.movies.activity
+package com.example.movie.ui.movies
 
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.movie.domain.models.Movie
-import com.example.movie.ui.movies.activity.MovieViewHolder
-
 class MoviesAdapter(private val clickListener: MovieClickListener) : RecyclerView.Adapter<MovieViewHolder>() {
 
     var movies = ArrayList<Movie>()
