@@ -1,50 +1,30 @@
-package com.example.movie.ui.movies.fragments
+package com.example.movie.ui.actor.fragments
 
 import android.annotation.SuppressLint
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.text.Editable
 import android.text.TextWatcher
+import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.ProgressBar
 import android.widget.TextView
-import android.widget.Toast
-import androidx.fragment.app.Fragment
-import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.movie.R
-import com.example.movie.databinding.FragmentMoviesBinding
-import com.example.movie.domain.models.Movie
-import com.example.movie.ui.details.fragments.DetailsFragment
-import com.example.movie.ui.movies.MoviesAdapter
-import com.example.movie.ui.movies.MoviesState
-import com.example.movie.ui.movies.view_model.MoviesViewModel
+import com.example.movie.databinding.FragmentActorInfoBinding
+import com.example.movie.domain.models.ActorCast
+import com.example.movie.ui.actor.ActorState
+import com.example.movie.ui.actor.view_model.ActorAdapter
+import com.example.movie.ui.actor.view_model.ActorViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
+import kotlin.getValue
 
-class MoviesFragment : Fragment() {
-
-    companion object {
-        private const val CLICK_DEBOUNCE_DELAY = 1000L
-    }
-
-    private val viewModel by viewModel<MoviesViewModel>()
-
-    private val adapter = MoviesAdapter { movie ->
-        if (clickDebounce()) {
-            findNavController().navigate(
-                R.id.action_moviesFragment2_to_detailsFragment2,
-                DetailsFragment.createArgs(movie.id, movie.image)
-            )
-        }
-    }
-    private val handler = Handler(Looper.getMainLooper())
-
-    private lateinit var binding: FragmentMoviesBinding
+class ActorInfoFragment : Fragment() {
+    private val viewModel by viewModel<ActorViewModel>()
+    private val adapter = ActorAdapter {}
+    private lateinit var binding: FragmentActorInfoBinding
 
     private lateinit var queryInput: EditText
     private lateinit var placeholderMessage: TextView
@@ -52,14 +32,12 @@ class MoviesFragment : Fragment() {
     private lateinit var progressBar: ProgressBar
     private lateinit var textWatcher: TextWatcher
 
-    private var isClickAllowed = true
-
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        binding = FragmentMoviesBinding.inflate(inflater, container, false)
+        binding = FragmentActorInfoBinding.inflate(inflater, container, false)
         return binding.root
     }
 
@@ -68,7 +46,7 @@ class MoviesFragment : Fragment() {
 
         placeholderMessage = binding.placeholderMessage
         queryInput = binding.queryInput
-        moviesList = binding.movies
+        moviesList = binding.actors
         progressBar = binding.progressBar
 
         moviesList.layoutManager =
@@ -95,10 +73,6 @@ class MoviesFragment : Fragment() {
             render(it)
         }
 
-        // Здесь пришлось заменить LifecycleOwner на ViewLifecycleOwner
-        viewModel.observeShowToast().observe(viewLifecycleOwner) {
-            showToast(it)
-        }
     }
 
     override fun onDestroyView() {
@@ -106,16 +80,12 @@ class MoviesFragment : Fragment() {
         textWatcher.let { queryInput.removeTextChangedListener(it) }
     }
 
-    private fun showToast(additionalMessage: String?) {
-        Toast.makeText(requireContext(), additionalMessage, Toast.LENGTH_LONG).show()
-    }
-
-    private fun render(state: MoviesState) {
+    private fun render(state: ActorState) {
         when (state) {
-            is MoviesState.Content -> showContent(state.movies)
-            is MoviesState.Empty -> showEmpty(state.message)
-            is MoviesState.Error -> showError(state.errorMessage)
-            is MoviesState.Loading -> showLoading()
+            is ActorState.Content -> showContent(state.actors)
+            is ActorState.Empty -> showEmpty(state.message)
+            is ActorState.Error -> showError(state.errorMessage)
+            is ActorState.Loading -> showLoading()
         }
     }
 
@@ -138,23 +108,13 @@ class MoviesFragment : Fragment() {
     }
 
     @SuppressLint("NotifyDataSetChanged")
-    private fun showContent(movies: List<Movie>) {
+    private fun showContent(movies: List<ActorCast>) {
         moviesList.visibility = View.VISIBLE
         placeholderMessage.visibility = View.GONE
         progressBar.visibility = View.GONE
 
-        adapter.movies.clear()
-        adapter.movies.addAll(movies)
+        adapter.actors.clear()
+        adapter.actors.addAll(movies)
         adapter.notifyDataSetChanged()
     }
-
-    private fun clickDebounce(): Boolean {
-        val current = isClickAllowed
-        if (isClickAllowed) {
-            isClickAllowed = false
-            handler.postDelayed({ isClickAllowed = true }, CLICK_DEBOUNCE_DELAY)
-        }
-        return current
-    }
-
 }

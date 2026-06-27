@@ -9,5 +9,4 @@ val interactorModule = module {
     single<MoviesInteractor> {
         MoviesInteractorImpl(get())
     }
-
 }

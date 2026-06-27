@@ -6,23 +6,25 @@ import androidx.lifecycle.ViewModel
 import com.example.movie.data.dto.response.MovieDetailsResponse
 import com.example.movie.domain.api.MoviesInteractor
 
-class AboutViewModel(private val movieId: String,
-                     private val moviesInteractor: MoviesInteractor, ) : ViewModel() {
+class AboutViewModel(
+    movieId: String,
+    moviesInteractor: MoviesInteractor,
+) : ViewModel() {
 
     private val stateLiveData = MutableLiveData<MoviesInfoState>()
     fun observeState(): LiveData<MoviesInfoState> = stateLiveData
 
     init {
-        moviesInteractor.getMovieInfo(movieId, object : MoviesInteractor.MovieInfoConsumer{
+        moviesInteractor.getMovieInfo(movieId, object : MoviesInteractor.MovieInfoConsumer {
             override fun consume(
                 movieInfo: MovieDetailsResponse?,
                 errorMessage: String?
             ) {
-                if (errorMessage != null){
+                if (errorMessage != null) {
                     stateLiveData.postValue(MoviesInfoState.Error("Error"))
-                }else if (movieInfo == null){
+                } else if (movieInfo == null) {
                     stateLiveData.postValue(MoviesInfoState.Error("Empty Error"))
-                }else{
+                } else {
                     stateLiveData.postValue(MoviesInfoState.Content(movieInfo))
                 }
             }

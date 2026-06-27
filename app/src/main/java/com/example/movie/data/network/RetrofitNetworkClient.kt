@@ -4,6 +4,7 @@ import android.content.Context
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import com.example.movie.data.NetworkClient
+import com.example.movie.data.dto.request.ActorCastRequest
 import com.example.movie.data.dto.request.MovieCastRequest
 import com.example.movie.data.dto.request.MovieInfoSearchRequest
 import com.example.movie.data.dto.request.MoviesSearchRequest
@@ -12,8 +13,7 @@ import java.net.SocketTimeoutException
 import java.net.UnknownHostException
 
 class RetrofitNetworkClient(
-    private val context: Context,
-    private val imDbApiService: IMDbApiService
+    private val context: Context, private val imDbApiService: IMDbApiService
 ) : NetworkClient {
 
     override fun doRequest(dto: Any): Response {
@@ -83,6 +83,27 @@ class RetrofitNetworkClient(
                 }
             }
 
+            is ActorCastRequest -> {
+                try {
+                    val response = imDbApiService.getActorName(dto.actorName).execute()
+                    val body = response.body()
+
+                    if (body != null) {
+                        body.resultCode = response.code()
+                        body
+                    } else {
+                        Response().apply { resultCode = response.code() }
+                    }
+                } catch (_: SocketTimeoutException) {
+                    Response().apply { resultCode = -1 }
+                } catch (_: UnknownHostException) {
+                    Response().apply { resultCode = -1 }
+                } catch (_: Exception) {
+                    Response().apply { resultCode = -1 }
+                }
+            }
+
+
             else -> {
                 Response().apply { resultCode = 400 }
             }
@@ -97,8 +118,8 @@ class RetrofitNetworkClient(
         val network = connectivityManager.activeNetwork ?: return false
         val capabilities = connectivityManager.getNetworkCapabilities(network) ?: return false
 
-        return capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) ||
-                capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) ||
-                capabilities.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET)
+        return capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) || capabilities.hasTransport(
+            NetworkCapabilities.TRANSPORT_WIFI
+        ) || capabilities.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET)
     }
 }

@@ -1,19 +1,17 @@
 package com.example.movie.ui.movies.view_model
 
-import android.content.Context
 import android.os.Handler
 import android.os.Looper
 import android.os.SystemClock
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.example.movie.R
 import com.example.movie.domain.api.MoviesInteractor
 import com.example.movie.domain.models.Movie
-import com.example.movie.ui.movies.view_model.SingleLiveEvent
 import com.example.movie.ui.movies.MoviesState
 
-class MoviesViewModel(private val moviesInteractor: MoviesInteractor, private val context: Context): ViewModel() {
+class MoviesViewModel(private val moviesInteractor: MoviesInteractor, val errorMessage: String) :
+    ViewModel() {
     companion object {
         private const val SEARCH_DEBOUNCE_DELAY = 2000L
         private val SEARCH_REQUEST_TOKEN = Any()
@@ -67,7 +65,7 @@ class MoviesViewModel(private val moviesInteractor: MoviesInteractor, private va
                             errorMessage != null -> {
                                 renderState(
                                     MoviesState.Error(
-                                        errorMessage = context.getString(R.string.something_went_wrong),
+                                        errorMessage = errorMessage
                                     )
                                 )
 
@@ -99,11 +97,10 @@ class MoviesViewModel(private val moviesInteractor: MoviesInteractor, private va
     }
 
     private fun renderState(state: MoviesState) {
-       stateLiveData.postValue(state)
+        stateLiveData.postValue(state)
     }
 
     override fun onCleared() {
-        super.onCleared()
         handler.removeCallbacksAndMessages(SEARCH_REQUEST_TOKEN)
     }
 }

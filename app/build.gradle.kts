@@ -27,10 +27,13 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
-    buildFeatures{
+    kotlinOptions {
+        jvmTarget = "17"  // ← Вот это ключевая строка! Явно указываем JVM 17
+    }
+    buildFeatures {
         viewBinding = true
     }
 }
@@ -46,27 +49,31 @@ dependencies {
     implementation(libs.androidx.constraintlayout)
 
     // Lifecycle (ViewModel + LiveData)
-    implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.10.0")
-    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.10.0")
-    implementation("androidx.activity:activity-ktx:1.13.0")
+    implementation(libs.androidx.lifecycle.livedata.ktx)
+    implementation(libs.androidx.lifecycle.viewmodel.ktx)
+    implementation(libs.androidx.activity.ktx)
+
     // Koin
-    implementation("io.insert-koin:koin-android:4.2.1")
+    implementation(libs.koin.android)
 
     // Retrofit
-    implementation("com.squareup.retrofit2:retrofit:3.0.0")
-    implementation("com.squareup.retrofit2:converter-gson:3.0.0")
-    implementation("com.squareup.okhttp3:logging-interceptor:5.4.0")
+    implementation(libs.retrofit)
+    implementation(libs.converter.gson)
+    implementation(libs.logging.interceptor)
+
     // Glide
-    implementation("com.github.bumptech.glide:glide:5.0.7")
+    implementation(libs.glide)
+
     // AdapterDelegates
-    implementation("com.hannesdorfmann:adapterdelegates4-kotlin-dsl:4.3.2")
-    implementation("com.hannesdorfmann:adapterdelegates4-kotlin-dsl-viewbinding:4.3.2")
+    implementation(libs.adapterdelegates4.kotlin.dsl)
+    implementation(libs.adapterdelegates4.kotlin.dsl.viewbinding)
 
     // Testing
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
-    //Jetpack Navigation Component
-    implementation("androidx.navigation:navigation-fragment-ktx:2.5.3")
-    implementation("androidx.navigation:navigation-ui-ktx:2.5.3")
+
+    // Jetpack Navigation Component
+    implementation(libs.androidx.navigation.fragment.ktx)
+    implementation(libs.androidx.navigation.ui.ktx.v253)
 }

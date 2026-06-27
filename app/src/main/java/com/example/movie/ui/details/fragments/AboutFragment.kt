@@ -46,17 +46,17 @@ class AboutFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         aboutViewModel.observeState().observe(viewLifecycleOwner) {
-            when(it) {
+            when (it) {
                 is AboutViewModel.MoviesInfoState.Content -> showDetails(it.movie)
                 is AboutViewModel.MoviesInfoState.Error -> showErrorMessage(it.errorMessage)
             }
         }
 
         binding.btnCast.setOnClickListener {
-           findNavController().navigate(
-               R.id.action_detailsFragment2_to_moviesCastFragment22,
-               MoviesCastFragment.createArgs(requireArguments().getString(MOVIE_ID) ?: "")
-               )
+            findNavController().navigate(
+                R.id.action_detailsFragment2_to_moviesCastFragment22,
+                MoviesCastFragment.createArgs(requireArguments().getString(MOVIE_ID) ?: "")
+            )
         }
     }
 

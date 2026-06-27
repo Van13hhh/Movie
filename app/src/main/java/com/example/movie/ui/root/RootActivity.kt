@@ -2,6 +2,9 @@ package com.example.movie.ui.root
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.navigation.fragment.NavHostFragment
+import androidx.navigation.ui.setupWithNavController
+import com.example.movie.R
 import com.example.movie.databinding.ActivityRootBinding
 
 class RootActivity : AppCompatActivity() {
@@ -12,6 +15,13 @@ class RootActivity : AppCompatActivity() {
 
         binding = ActivityRootBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        val navHostFragment =
+            supportFragmentManager.findFragmentById(R.id.rootFragmentContainerView) as NavHostFragment
+        val navController = navHostFragment.navController
+
+        val bottomNavigationView = binding.bottomNavigationView
+        bottomNavigationView.setupWithNavController(navController)
 
     }
 }

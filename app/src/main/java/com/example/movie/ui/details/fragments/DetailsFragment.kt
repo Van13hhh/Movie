@@ -11,9 +11,9 @@ import com.example.movie.ui.details.DetailsViewPagerAdapter
 import com.google.android.material.tabs.TabLayoutMediator
 import kotlin.apply
 
-class DetailsFragment: Fragment() {
+class DetailsFragment : Fragment() {
 
-    companion object{
+    companion object {
         private const val ARGS_MOVIE_ID = "movie_id"
         private const val ARGS_POSTER_URL = "poster_url"
 
@@ -23,6 +23,7 @@ class DetailsFragment: Fragment() {
                 putString(ARGS_POSTER_URL, posterUrl)
             }
     }
+
     private lateinit var binding: FragmentDetailsBinding
     private lateinit var tabMediator: TabLayoutMediator
 

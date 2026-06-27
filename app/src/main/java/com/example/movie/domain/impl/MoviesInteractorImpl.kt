@@ -11,7 +11,7 @@ class MoviesInteractorImpl(private val repository: MoviesRepository) : MoviesInt
 
     override fun searchMovies(expression: String, consumer: MoviesInteractor.MoviesConsumer) {
         executor.execute {
-            when(val resource = repository.searchMovies(expression)){
+            when (val resource = repository.searchMovies(expression)) {
                 is Resource.Success -> consumer.consume(resource.data, null)
                 is Resource.Error -> consumer.consume(null, resource.message)
             }
@@ -23,11 +23,12 @@ class MoviesInteractorImpl(private val repository: MoviesRepository) : MoviesInt
 
         executor.execute {
             Log.d("DEBUG_INTERACTOR", "Запрос в репозиторий...")
-            when(val resource = repository.getMovieDetails(id)){
+            when (val resource = repository.getMovieDetails(id)) {
                 is Resource.Success -> {
                     Log.d("DEBUG_INTERACTOR", "Успех: ${resource.data?.title}")
                     consumer.consume(resource.data, null)
                 }
+
                 is Resource.Error -> {
                     Log.d("DEBUG_INTERACTOR", "Ошибка: ${resource.message}")
                     consumer.consume(null, resource.message)
@@ -41,10 +42,28 @@ class MoviesInteractorImpl(private val repository: MoviesRepository) : MoviesInt
         consumer: MoviesInteractor.MovieCastInfoConsumer
     ) {
         executor.execute {
-            when(val resource = repository.getCastMovieInfo(id)){
+            when (val resource = repository.getCastMovieInfo(id)) {
                 is Resource.Success -> {
                     consumer.consume(resource.data, null)
                 }
+
+                is Resource.Error -> {
+                    consumer.consume(resource.data, resource.message)
+                }
+            }
+        }
+    }
+
+    override fun getActorInfo(
+        actorName: String,
+        consumer: MoviesInteractor.MoviesActorInfoConsumer
+    ) {
+        executor.execute {
+            when (val resource = repository.getCastActorInfo(actorName)) {
+                is Resource.Success -> {
+                    consumer.consume(resource.data, null)
+                }
+
                 is Resource.Error -> {
                     consumer.consume(resource.data, resource.message)
                 }

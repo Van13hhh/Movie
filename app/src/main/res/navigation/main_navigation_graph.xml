@@ -8,27 +8,27 @@
         android:id="@+id/moviesFragment2"
         android:name="com.example.movie.ui.movies.fragments.MoviesFragment"
         android:label="fragment_movies"
-        tools:layout="@layout/fragment_movies" >
+        tools:layout="@layout/fragment_movies">
         <action
             android:id="@+id/action_moviesFragment2_to_detailsFragment2"
             app:destination="@id/detailsFragment2"
             app:enterAnim="@anim/slide_in_right"
             app:exitAnim="@anim/slide_out_left"
             app:popEnterAnim="@anim/slide_in_left"
-            app:popExitAnim="@anim/slide_out_right"/>
+            app:popExitAnim="@anim/slide_out_right" />
     </fragment>
     <fragment
         android:id="@+id/detailsFragment2"
         android:name="com.example.movie.ui.details.fragments.DetailsFragment"
         android:label="fragment_details"
-        tools:layout="@layout/fragment_details" >
+        tools:layout="@layout/fragment_details">
         <action
             android:id="@+id/action_detailsFragment2_to_moviesCastFragment22"
             app:destination="@id/moviesCastFragment2"
             app:enterAnim="@anim/slide_in_right"
             app:exitAnim="@anim/slide_out_left"
             app:popEnterAnim="@anim/slide_in_left"
-            app:popExitAnim="@anim/slide_out_right"/>
+            app:popExitAnim="@anim/slide_out_right" />
     </fragment>
     <fragment
         android:id="@+id/moviesCastFragment2"
@@ -39,10 +39,20 @@
         android:id="@+id/aboutFragment2"
         android:name="com.example.movie.ui.details.fragments.AboutFragment"
         android:label="fragment_about"
-        tools:layout="@layout/fragment_about"/>
+        tools:layout="@layout/fragment_about" />
     <fragment
         android:id="@+id/posterFragment2"
         android:name="com.example.movie.ui.details.fragments.PosterFragment"
         android:label="fragment_poster"
-        tools:layout="@layout/fragment_poster" />
+        tools:layout="@layout/fragment_poster"></fragment>
+    <fragment
+        android:id="@+id/actorInfoFragment"
+        android:name="com.example.movie.ui.actor.fragments.ActorInfoFragment"
+        android:label="fragment_actor_info"
+        tools:layout="@layout/fragment_actor_info" />
+    <fragment
+        android:id="@+id/helpFragment"
+        android:name="com.example.movie.ui.info.InfoFragment"
+        android:label="fragment_info"
+        tools:layout="@layout/fragment_info" />
 </navigation>

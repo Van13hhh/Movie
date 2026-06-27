@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     android:background="@color/white"
     android:orientation="vertical"
-    tools:context="com.example.movie.ui.movies.fragments.MoviesFragment">
+    tools:context="com.example.movie.ui.actor.fragments.ActorInfoFragment">
 
     <EditText
         android:id="@+id/queryInput"
@@ -31,7 +31,7 @@
             android:visibility="gone" />
 
         <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/movies"
+            android:id="@+id/actors"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
 

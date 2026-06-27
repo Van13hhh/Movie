@@ -8,23 +8,23 @@ import com.example.movie.ui.RVItem
 import com.example.movie.ui.cast.MoviesCastRVItem
 
 class MovieCastViewModel(
-    private val movieId: String,
-    private val moviesInteractor: MoviesInteractor,
-): ViewModel() {
+    movieId: String,
+    moviesInteractor: MoviesInteractor,
+) : ViewModel() {
     private val stateLiveData = MutableLiveData<MoviesCastState>()
     fun observeState(): MutableLiveData<MoviesCastState> = stateLiveData
 
     init {
         stateLiveData.postValue(MoviesCastState.Loading)
 
-        moviesInteractor.getCastInfo(movieId, object : MoviesInteractor.MovieCastInfoConsumer{
+        moviesInteractor.getCastInfo(movieId, object : MoviesInteractor.MovieCastInfoConsumer {
             override fun consume(
                 castMovieInfo: MovieCast?,
                 errorMessage: String?
             ) {
-                if (castMovieInfo != null){
+                if (castMovieInfo != null) {
                     stateLiveData.postValue(castToUiStateContent(castMovieInfo))
-                }else{
+                } else {
                     stateLiveData.postValue(MoviesCastState.Error(errorMessage ?: "Unknown error"))
                 }
             }
@@ -34,26 +34,26 @@ class MovieCastViewModel(
 
 }
 
-private fun castToUiStateContent(cast: MovieCast): MoviesCastState{
+private fun castToUiStateContent(cast: MovieCast): MoviesCastState {
     val items = buildList<MoviesCastRVItem> {
-        if (cast.directors.isNotEmpty()){
+        if (cast.directors.isNotEmpty()) {
             this += MoviesCastRVItem.HeaderItem("Directors")
-            this += cast.directors.map{ MoviesCastRVItem.PersonItem(it) }
+            this += cast.directors.map { MoviesCastRVItem.PersonItem(it) }
         }
 
-        if (cast.writers.isNotEmpty()){
+        if (cast.writers.isNotEmpty()) {
             this += MoviesCastRVItem.HeaderItem("Writers")
-            this += cast.writers.map{ MoviesCastRVItem.PersonItem(it) }
+            this += cast.writers.map { MoviesCastRVItem.PersonItem(it) }
         }
 
-        if (cast.actors.isNotEmpty()){
+        if (cast.actors.isNotEmpty()) {
             this += MoviesCastRVItem.HeaderItem("Actors")
-            this += cast.actors.map{ MoviesCastRVItem.PersonItem(it) }
+            this += cast.actors.map { MoviesCastRVItem.PersonItem(it) }
         }
 
-        if (cast.others.isNotEmpty()){
+        if (cast.others.isNotEmpty()) {
             this += MoviesCastRVItem.HeaderItem("Others")
-            this += cast.others.map{ MoviesCastRVItem.PersonItem(it) }
+            this += cast.others.map { MoviesCastRVItem.PersonItem(it) }
         }
     }
 
