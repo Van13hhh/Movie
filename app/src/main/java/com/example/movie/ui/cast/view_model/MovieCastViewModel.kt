@@ -2,10 +2,12 @@ package com.example.movie.ui.cast.view_model
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.movie.domain.api.MoviesInteractor
 import com.example.movie.domain.models.MovieCast
 import com.example.movie.ui.RVItem
 import com.example.movie.ui.cast.MoviesCastRVItem
+import kotlinx.coroutines.launch
 
 class MovieCastViewModel(
     movieId: String,
@@ -17,19 +19,17 @@ class MovieCastViewModel(
     init {
         stateLiveData.postValue(MoviesCastState.Loading)
 
-        moviesInteractor.getCastInfo(movieId, object : MoviesInteractor.MovieCastInfoConsumer {
-            override fun consume(
-                castMovieInfo: MovieCast?,
-                errorMessage: String?
-            ) {
-                if (castMovieInfo != null) {
-                    stateLiveData.postValue(castToUiStateContent(castMovieInfo))
-                } else {
-                    stateLiveData.postValue(MoviesCastState.Error(errorMessage ?: "Unknown error"))
+        viewModelScope.launch {
+            moviesInteractor.getCastInfo(movieId)
+                .collect { pair ->
+                    if (pair.first != null) {
+                        //Доработать!!!
+                        stateLiveData.postValue(castToUiStateContent(pair.first!!))
+                    }else{
+                        stateLiveData.postValue(MoviesCastState.Error(pair.second ?: "Unknown error"))
+                    }
                 }
-            }
-
-        })
+        }
     }
 
 }

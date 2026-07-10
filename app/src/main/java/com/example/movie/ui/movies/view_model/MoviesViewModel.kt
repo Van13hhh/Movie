@@ -2,13 +2,15 @@ package com.example.movie.ui.movies.view_model
 
 import android.os.Handler
 import android.os.Looper
-import android.os.SystemClock
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.movie.domain.api.MoviesInteractor
 import com.example.movie.domain.models.Movie
 import com.example.movie.ui.movies.MoviesState
+import com.example.movie.util.debounce
+import kotlinx.coroutines.launch
 
 class MoviesViewModel(private val moviesInteractor: MoviesInteractor, val errorMessage: String) :
     ViewModel() {
@@ -25,25 +27,17 @@ class MoviesViewModel(private val moviesInteractor: MoviesInteractor, val errorM
     fun observeShowToast(): LiveData<String?> = showToast
 
     private var latestSearchText: String? = null
+    private val movieSearchDebounce : (String) -> Unit = debounce(SEARCH_DEBOUNCE_DELAY, viewModelScope, true){ text ->
+        searchRequest(text)
+    }
 
     private val handler = Handler(Looper.getMainLooper())
 
     fun searchDebounce(changedText: String) {
-        if (latestSearchText == changedText) {
-            return
+        if (latestSearchText != changedText) {
+            this.latestSearchText = changedText
+            movieSearchDebounce (changedText)
         }
-
-        this.latestSearchText = changedText
-        handler.removeCallbacksAndMessages(SEARCH_REQUEST_TOKEN)
-
-        val searchRunnable = Runnable { searchRequest(changedText) }
-
-        val postTime = SystemClock.uptimeMillis() + SEARCH_DEBOUNCE_DELAY
-        handler.postAtTime(
-            searchRunnable,
-            SEARCH_REQUEST_TOKEN,
-            postTime,
-        )
     }
 
     private fun searchRequest(newSearchText: String) {
@@ -52,24 +46,25 @@ class MoviesViewModel(private val moviesInteractor: MoviesInteractor, val errorM
                 MoviesState.Loading
             )
 
-            moviesInteractor.searchMovies(newSearchText, object : MoviesInteractor.MoviesConsumer {
-                override fun consume(foundMovies: List<Movie>?, errorMessage: String?) {
-                    handler.post {
-                        // Готовим список найденных фильмов для передачи в конструктор MoviesState
-                        val movies = mutableListOf<Movie>()
-                        if (foundMovies != null) {
-                            movies.addAll(foundMovies)
+            val movies = mutableListOf<Movie>()
+
+            viewModelScope.launch {
+                moviesInteractor
+                    .searchMovies(newSearchText)
+                    .collect { pair ->
+                        if (pair.first != null) {
+                            movies.addAll(pair.first!!)
                         }
 
                         when {
-                            errorMessage != null -> {
+                            pair.second != null -> {
                                 renderState(
                                     MoviesState.Error(
-                                        errorMessage = errorMessage
+                                        errorMessage = pair.second!!
                                     )
                                 )
 
-                                showToast.postValue(errorMessage)
+                                showToast.postValue(pair.second)
 
                             }
 
@@ -89,10 +84,8 @@ class MoviesViewModel(private val moviesInteractor: MoviesInteractor, val errorM
                                 )
                             }
                         }
-
                     }
-                }
-            })
+            }
         }
     }
 

@@ -1,6 +1,5 @@
 package com.example.movie.data
 
-import android.util.Log
 import com.example.movie.data.dto.request.ActorCastRequest
 import com.example.movie.data.dto.request.MovieCastRequest
 import com.example.movie.data.dto.response.MovieDetailsResponse
@@ -19,110 +18,95 @@ import com.example.movie.domain.models.Movie
 import com.example.movie.domain.models.MovieCast
 import com.example.movie.util.MovieCastConverter
 import com.example.movie.util.Resource
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 
 class MoviesRepositoryImpl(
     private val networkClient: NetworkClient,
     private val converter: MovieCastConverter
 ) : MoviesRepository {
-    override fun searchMovies(expression: String): Resource<List<Movie>> {
+    override fun searchMovies(expression: String): Flow<Resource<List<Movie>>> = flow {
         val response = networkClient.doRequest(MoviesSearchRequest(expression))
-        Log.d("DEBUG_REPO", "resultCode: ${response.resultCode}")
-        Log.d("DEBUG_REPO", "response type: ${response::class.simpleName}")
-        return when (response.resultCode) {
+        when (response.resultCode) {
             -1 -> {
-                Resource.Success(getMockSearchResults())
+                emit(Resource.Success(getMockSearchResults()))
             }
 
             200 -> {
                 if ((response as MoviesSearchResponse).results.isEmpty()) {
-                    Resource.Error("Empty error")
+                    emit(Resource.Error("Empty error"))
                 } else {
-                    Resource.Success((response).results.map {
+                    emit(Resource.Success((response).results.map {
                         Movie(it.id, it.resultType, it.image, it.title, it.description)
-                    })
+                    }))
                 }
             }
 
             else -> {
-                Resource.Error("Ошибка сервера")
+                emit(Resource.Error("Ошибка сервера"))
             }
         }
     }
 
-    override fun getMovieDetails(id: String): Resource<MovieDetailsResponse> {
-        Log.d("DEBUG_REPO", "1. getMovieInfo вызван с id: $id")
-
+    override fun getMovieDetails(id: String): Flow<Resource<MovieDetailsResponse>> = flow{
         val response = networkClient.doRequest(MovieInfoSearchRequest(id))
-        Log.d("DEBUG_REPO", "2. Получен response, resultCode = ${response.resultCode}")
-        Log.d(
-            "DEBUG_REPO",
-            "3. response is MovieDetailsResponse? ${response is MovieDetailsResponse}"
-        )
 
-        return when (response.resultCode) {
+        when (response.resultCode) {
             -1 -> {
-                Log.d("DEBUG_REPO", "4. Ошибка -1")
-                Resource.Success(getMockMovieDetails())
+                emit(Resource.Success(getMockMovieDetails()))
             }
-
             200 -> {
-                Log.d("DEBUG_REPO", "5. Код 200")
                 if (response is MovieDetailsResponse) {
-                    Log.d("DEBUG_REPO", "6. Успех! Title: ${response.title}")
-                    Resource.Success(response)
+                    emit(Resource.Success(response))
                 } else {
-                    Log.d("DEBUG_REPO", "7. Response не является MovieDetailsResponse")
-                    Resource.Error("Empty server request")
+                    emit(Resource.Error("Empty server request"))
                 }
             }
 
             else -> {
-                Log.d("DEBUG_REPO", "8. Другой код: ${response.resultCode}")
-                Resource.Error("Server Error")
+                emit(Resource.Error("Server Error"))
             }
         }
     }
 
-    override fun getCastMovieInfo(id: String): Resource<MovieCast> {
+    override fun getCastMovieInfo(id: String): Flow<Resource<MovieCast>> = flow{
         val response = networkClient.doRequest(MovieCastRequest(id))
 
-        return when (response.resultCode) {
+         when (response.resultCode) {
             -1 -> {
-                Resource.Success(converter.convert(getMockCastResponse()))
+                emit(Resource.Success(converter.convert(getMockCastResponse())))
             }
 
             200 -> {
                 if (response is MovieCastResponse) {
-                    Resource.Success(converter.convert(response))
+                    emit(Resource.Success(converter.convert(response)))
                 } else {
-                    Resource.Error("Empty server request")
+                    emit(Resource.Error("Empty server request"))
                 }
             }
 
             else -> {
-                Resource.Error("Server Error")
+                emit(Resource.Error("Server Error"))
             }
         }
     }
 
-    override fun getCastActorInfo(actorName: String): Resource<List<ActorCast>> {
+    override fun getCastActorInfo(actorName: String): Flow<Resource<List<ActorCast>>> = flow {
         val response = networkClient.doRequest(ActorCastRequest(actorName))
 
-        return when (response.resultCode) {
+        when (response.resultCode) {
             -1 -> {
-                Resource.Success(getMockCastActorInfo(actorName))
+                emit(Resource.Success(getMockCastActorInfo(actorName)))
             }
 
             200 -> {
-                if (response is ActorCastResponse) {
-                    Resource.Success(getMockCastActorInfo(actorName))
-                } else {
-                    Resource.Error("Empty server request")
+                with(response is ActorCastResponse) {
+                    emit(Resource.Success(getMockCastActorInfo(actorName)))
                 }
             }
 
             else -> {
-                Resource.Error("Server Error")
+                emit(Resource.Error("Server Error"))
             }
         }
     }

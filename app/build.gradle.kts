@@ -31,7 +31,7 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
     kotlinOptions {
-        jvmTarget = "17"  // ← Вот это ключевая строка! Явно указываем JVM 17
+        jvmTarget = "17"
     }
     buildFeatures {
         viewBinding = true
@@ -39,6 +39,7 @@ android {
 }
 
 dependencies {
+    implementation(libs.kotlinx.coroutines.android)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.navigation.fragment.ktx)

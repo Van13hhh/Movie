@@ -41,11 +41,6 @@
         android:label="fragment_about"
         tools:layout="@layout/fragment_about" />
     <fragment
-        android:id="@+id/posterFragment2"
-        android:name="com.example.movie.ui.details.fragments.PosterFragment"
-        android:label="fragment_poster"
-        tools:layout="@layout/fragment_poster"></fragment>
-    <fragment
         android:id="@+id/actorInfoFragment"
         android:name="com.example.movie.ui.actor.fragments.ActorInfoFragment"
         android:label="fragment_actor_info"

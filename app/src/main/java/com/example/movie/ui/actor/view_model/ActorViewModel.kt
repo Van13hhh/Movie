@@ -1,21 +1,21 @@
 package com.example.movie.ui.actor.view_model
 
-import android.os.Handler
-import android.os.Looper
-import android.os.SystemClock
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.movie.domain.api.MoviesInteractor
 import com.example.movie.domain.models.ActorCast
 import com.example.movie.ui.actor.ActorState
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlin.time.Duration.Companion.milliseconds
 
 class ActorViewModel(private val moviesInteractor: MoviesInteractor, val errorMessage: String) :
     ViewModel() {
     companion object {
         private const val SEARCH_DEBOUNCE_DELAY = 2000L
-        private val SEARCH_REQUEST_TOKEN = Any()
-
     }
 
     private val stateLiveData = MutableLiveData<ActorState>()
@@ -23,7 +23,7 @@ class ActorViewModel(private val moviesInteractor: MoviesInteractor, val errorMe
 
     private var latestSearchText: String? = null
 
-    private val handler = Handler(Looper.getMainLooper())
+    private var searchJob: Job? = null
 
     fun searchDebounce(changedText: String) {
         if (latestSearchText == changedText) {
@@ -31,16 +31,12 @@ class ActorViewModel(private val moviesInteractor: MoviesInteractor, val errorMe
         }
 
         this.latestSearchText = changedText
-        handler.removeCallbacksAndMessages(SEARCH_REQUEST_TOKEN)
+        searchJob?.cancel()
+        searchJob = viewModelScope.launch {
+            delay(SEARCH_DEBOUNCE_DELAY.milliseconds)
+            searchRequest(changedText)
+        }
 
-        val searchRunnable = Runnable { searchRequest(changedText) }
-
-        val postTime = SystemClock.uptimeMillis() + SEARCH_DEBOUNCE_DELAY
-        handler.postAtTime(
-            searchRunnable,
-            SEARCH_REQUEST_TOKEN,
-            postTime,
-        )
     }
 
     private fun searchRequest(newSearchText: String) {
@@ -49,57 +45,50 @@ class ActorViewModel(private val moviesInteractor: MoviesInteractor, val errorMe
                 ActorState.Loading
             )
 
-            moviesInteractor.getActorInfo(
-                newSearchText,
-                object : MoviesInteractor.MoviesActorInfoConsumer {
-                    override fun consume(
-                        castActorInfo: List<ActorCast>?,
-                        errorMessage: String?
-                    ) {
-                        handler.post {
-                            // Готовим список найденных фильмов для передачи в конструктор MoviesState
-                            val actors = mutableListOf<ActorCast>()
-                            if (castActorInfo != null) {
-                                actors.addAll(castActorInfo)
-                            }
-
-                            when {
-                                errorMessage != null -> {
-                                    renderState(
-                                        ActorState.Error(
-                                            errorMessage = errorMessage
-                                        )
-                                    )
-                                }
-
-                                actors.isEmpty() -> {
-                                    renderState(
-                                        ActorState.Error(
-                                            errorMessage = "Empty"
-                                        )
-                                    )
-                                }
-
-                                else -> {
-                                    renderState(
-                                        ActorState.Content(
-                                            actors = actors,
-                                        )
-                                    )
-                                }
-                            }
-
-                        }
+            viewModelScope.launch {
+                moviesInteractor
+                    .getActorInfo(newSearchText)
+                    .collect { pair ->
+                        processResult(pair.first, pair.second)
                     }
-                })
+            }
+        }
+    }
+
+    private fun processResult(foundNames: List<ActorCast>?, errorMessage: String?) {
+        val actors = mutableListOf<ActorCast>()
+        if (foundNames != null) {
+            actors.addAll(foundNames)
+        }
+
+        when {
+            errorMessage != null -> {
+                renderState(
+                    ActorState.Error(
+                        errorMessage = errorMessage
+                    )
+                )
+            }
+
+            actors.isEmpty() -> {
+                renderState(
+                    ActorState.Error(
+                        errorMessage = "Empty"
+                    )
+                )
+            }
+
+            else -> {
+                renderState(
+                    ActorState.Content(
+                        actors = actors,
+                    )
+                )
+            }
         }
     }
 
     private fun renderState(state: ActorState) {
         stateLiveData.postValue(state)
-    }
-
-    override fun onCleared() {
-        handler.removeCallbacksAndMessages(SEARCH_REQUEST_TOKEN)
     }
 }
