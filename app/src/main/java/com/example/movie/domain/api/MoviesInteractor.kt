@@ -1,24 +1,15 @@
 package com.example.movie.domain.api
 
 import com.example.movie.data.dto.response.MovieDetailsResponse
+import com.example.movie.domain.models.ActorCast
 import com.example.movie.domain.models.Movie
 import com.example.movie.domain.models.MovieCast
+import kotlinx.coroutines.flow.Flow
 
 interface MoviesInteractor {
-    fun searchMovies(expression: String, consumer: MoviesConsumer)
+    fun searchMovies(expression: String): Flow<Pair<List<Movie>?, String?>>
+    fun getMovieInfo(id: String): Flow<Pair<MovieDetailsResponse?, String?>>
+    fun getCastInfo(id: String): Flow<Pair<MovieCast?, String?>>
+    fun getActorInfo(actorName: String): Flow<Pair<List<ActorCast>?, String?>>
 
-    interface MoviesConsumer {
-        fun consume(foundMovies: List<Movie>?, errorMessage: String?)
-    }
-    fun getMovieInfo(id: String, consumer: MovieInfoConsumer)
-
-    interface MovieInfoConsumer{
-        fun consume(movieInfo: MovieDetailsResponse?, errorMessage: String?)
-    }
-
-    interface MovieCastInfoConsumer{
-        fun consume(castMovieInfo: MovieCast?, errorMessage: String?)
-    }
-
-    fun getCastInfo(id: String, consumer: MovieCastInfoConsumer)
 }

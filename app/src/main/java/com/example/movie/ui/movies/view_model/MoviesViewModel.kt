@@ -1,19 +1,19 @@
 package com.example.movie.ui.movies.view_model
 
-import android.content.Context
 import android.os.Handler
 import android.os.Looper
-import android.os.SystemClock
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.example.movie.R
+import androidx.lifecycle.viewModelScope
 import com.example.movie.domain.api.MoviesInteractor
 import com.example.movie.domain.models.Movie
-import com.example.movie.ui.movies.view_model.SingleLiveEvent
 import com.example.movie.ui.movies.MoviesState
+import com.example.movie.util.debounce
+import kotlinx.coroutines.launch
 
-class MoviesViewModel(private val moviesInteractor: MoviesInteractor, private val context: Context): ViewModel() {
+class MoviesViewModel(private val moviesInteractor: MoviesInteractor, val errorMessage: String) :
+    ViewModel() {
     companion object {
         private const val SEARCH_DEBOUNCE_DELAY = 2000L
         private val SEARCH_REQUEST_TOKEN = Any()
@@ -27,25 +27,17 @@ class MoviesViewModel(private val moviesInteractor: MoviesInteractor, private va
     fun observeShowToast(): LiveData<String?> = showToast
 
     private var latestSearchText: String? = null
+    private val movieSearchDebounce : (String) -> Unit = debounce(SEARCH_DEBOUNCE_DELAY, viewModelScope, true){ text ->
+        searchRequest(text)
+    }
 
     private val handler = Handler(Looper.getMainLooper())
 
     fun searchDebounce(changedText: String) {
-        if (latestSearchText == changedText) {
-            return
+        if (latestSearchText != changedText) {
+            this.latestSearchText = changedText
+            movieSearchDebounce (changedText)
         }
-
-        this.latestSearchText = changedText
-        handler.removeCallbacksAndMessages(SEARCH_REQUEST_TOKEN)
-
-        val searchRunnable = Runnable { searchRequest(changedText) }
-
-        val postTime = SystemClock.uptimeMillis() + SEARCH_DEBOUNCE_DELAY
-        handler.postAtTime(
-            searchRunnable,
-            SEARCH_REQUEST_TOKEN,
-            postTime,
-        )
     }
 
     private fun searchRequest(newSearchText: String) {
@@ -54,24 +46,25 @@ class MoviesViewModel(private val moviesInteractor: MoviesInteractor, private va
                 MoviesState.Loading
             )
 
-            moviesInteractor.searchMovies(newSearchText, object : MoviesInteractor.MoviesConsumer {
-                override fun consume(foundMovies: List<Movie>?, errorMessage: String?) {
-                    handler.post {
-                        // Готовим список найденных фильмов для передачи в конструктор MoviesState
-                        val movies = mutableListOf<Movie>()
-                        if (foundMovies != null) {
-                            movies.addAll(foundMovies)
+            val movies = mutableListOf<Movie>()
+
+            viewModelScope.launch {
+                moviesInteractor
+                    .searchMovies(newSearchText)
+                    .collect { pair ->
+                        if (pair.first != null) {
+                            movies.addAll(pair.first!!)
                         }
 
                         when {
-                            errorMessage != null -> {
+                            pair.second != null -> {
                                 renderState(
                                     MoviesState.Error(
-                                        errorMessage = context.getString(R.string.something_went_wrong),
+                                        errorMessage = pair.second!!
                                     )
                                 )
 
-                                showToast.postValue(errorMessage)
+                                showToast.postValue(pair.second)
 
                             }
 
@@ -91,19 +84,16 @@ class MoviesViewModel(private val moviesInteractor: MoviesInteractor, private va
                                 )
                             }
                         }
-
                     }
-                }
-            })
+            }
         }
     }
 
     private fun renderState(state: MoviesState) {
-       stateLiveData.postValue(state)
+        stateLiveData.postValue(state)
     }
 
     override fun onCleared() {
-        super.onCleared()
         handler.removeCallbacksAndMessages(SEARCH_REQUEST_TOKEN)
     }
 }

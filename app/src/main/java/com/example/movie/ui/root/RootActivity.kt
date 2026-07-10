@@ -1,14 +1,14 @@
 package com.example.movie.ui.root
 
 import android.os.Bundle
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
-import androidx.fragment.app.commit
+import androidx.navigation.fragment.NavHostFragment
+import androidx.navigation.ui.setupWithNavController
 import com.example.movie.R
 import com.example.movie.databinding.ActivityRootBinding
-import com.example.movie.ui.movies.MoviesFragment
 
 class RootActivity : AppCompatActivity() {
-
     private lateinit var binding: ActivityRootBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -17,11 +17,16 @@ class RootActivity : AppCompatActivity() {
         binding = ActivityRootBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        if (savedInstanceState == null){
-            supportFragmentManager.commit {
-                this.add(R.id.rootFragmentContainerView, MoviesFragment())
-            }
-        }
+        val navHostFragment =
+            supportFragmentManager.findFragmentById(R.id.rootFragmentContainerView) as NavHostFragment
+        val navController = navHostFragment.navController
+
+        val bottomNavigationView = binding.bottomNavigationView
+        bottomNavigationView.setupWithNavController(navController)
+
     }
 
+    fun animateBottomNavigationView() {
+        binding.bottomNavigationView.visibility = View.GONE
+    }
 }

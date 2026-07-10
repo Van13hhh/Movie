@@ -13,4 +13,9 @@
     <string name="plot">Сюжет:</string>
     <string name="something_went_wrong">Nothing Found</string>
     <string name="show_cast">Show cast</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello my dear friend!</string>
+    <string name="movies">Movies</string>
+    <string name="persons">Persons</string>
+    <string name="info">Info</string>
 </resources>

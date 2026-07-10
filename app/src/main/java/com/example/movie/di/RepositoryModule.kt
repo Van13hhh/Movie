@@ -12,5 +12,4 @@ val repositoryModule = module {
     single<MoviesRepository> {
         MoviesRepositoryImpl(get(), get())
     }
-
 }

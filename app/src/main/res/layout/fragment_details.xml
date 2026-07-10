@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/white"
     android:orientation="vertical"
-    android:background="@color/white">
+    tools:context="com.example.movie.ui.details.fragments.DetailsFragment">
 
     <com.google.android.material.tabs.TabLayout
         android:id="@+id/tabLayout"
@@ -13,9 +15,9 @@
         android:layout_marginLeft="@dimen/section_margin"
         android:layout_marginRight="@dimen/section_margin"
         android:background="@color/white"
+        app:tabIndicatorColor="@color/black"
         app:tabRippleColor="@color/light_gray"
-        app:tabTextColor="@color/black"
-        app:tabIndicatorColor="@color/black"/>
+        app:tabTextColor="@color/black" />
 
     <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/viewPager"

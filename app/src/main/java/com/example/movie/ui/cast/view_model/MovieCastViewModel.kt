@@ -2,58 +2,58 @@ package com.example.movie.ui.cast.view_model
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.movie.domain.api.MoviesInteractor
 import com.example.movie.domain.models.MovieCast
 import com.example.movie.ui.RVItem
 import com.example.movie.ui.cast.MoviesCastRVItem
+import kotlinx.coroutines.launch
 
 class MovieCastViewModel(
-    private val movieId: String,
-    private val moviesInteractor: MoviesInteractor,
-): ViewModel() {
+    movieId: String,
+    moviesInteractor: MoviesInteractor,
+) : ViewModel() {
     private val stateLiveData = MutableLiveData<MoviesCastState>()
     fun observeState(): MutableLiveData<MoviesCastState> = stateLiveData
 
     init {
         stateLiveData.postValue(MoviesCastState.Loading)
 
-        moviesInteractor.getCastInfo(movieId, object : MoviesInteractor.MovieCastInfoConsumer{
-            override fun consume(
-                castMovieInfo: MovieCast?,
-                errorMessage: String?
-            ) {
-                if (castMovieInfo != null){
-                    stateLiveData.postValue(castToUiStateContent(castMovieInfo))
-                }else{
-                    stateLiveData.postValue(MoviesCastState.Error(errorMessage ?: "Unknown error"))
+        viewModelScope.launch {
+            moviesInteractor.getCastInfo(movieId)
+                .collect { pair ->
+                    if (pair.first != null) {
+                        //Доработать!!!
+                        stateLiveData.postValue(castToUiStateContent(pair.first!!))
+                    }else{
+                        stateLiveData.postValue(MoviesCastState.Error(pair.second ?: "Unknown error"))
+                    }
                 }
-            }
-
-        })
+        }
     }
 
 }
 
-private fun castToUiStateContent(cast: MovieCast): MoviesCastState{
+private fun castToUiStateContent(cast: MovieCast): MoviesCastState {
     val items = buildList<MoviesCastRVItem> {
-        if (cast.directors.isNotEmpty()){
+        if (cast.directors.isNotEmpty()) {
             this += MoviesCastRVItem.HeaderItem("Directors")
-            this += cast.directors.map{ MoviesCastRVItem.PersonItem(it) }
+            this += cast.directors.map { MoviesCastRVItem.PersonItem(it) }
         }
 
-        if (cast.writers.isNotEmpty()){
+        if (cast.writers.isNotEmpty()) {
             this += MoviesCastRVItem.HeaderItem("Writers")
-            this += cast.writers.map{ MoviesCastRVItem.PersonItem(it) }
+            this += cast.writers.map { MoviesCastRVItem.PersonItem(it) }
         }
 
-        if (cast.actors.isNotEmpty()){
+        if (cast.actors.isNotEmpty()) {
             this += MoviesCastRVItem.HeaderItem("Actors")
-            this += cast.actors.map{ MoviesCastRVItem.PersonItem(it) }
+            this += cast.actors.map { MoviesCastRVItem.PersonItem(it) }
         }
 
-        if (cast.others.isNotEmpty()){
+        if (cast.others.isNotEmpty()) {
             this += MoviesCastRVItem.HeaderItem("Others")
-            this += cast.others.map{ MoviesCastRVItem.PersonItem(it) }
+            this += cast.others.map { MoviesCastRVItem.PersonItem(it) }
         }
     }
 

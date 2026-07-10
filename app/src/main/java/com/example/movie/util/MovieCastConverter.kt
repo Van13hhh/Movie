@@ -10,8 +10,8 @@ import com.example.movie.domain.models.MovieCast
 import com.example.movie.domain.models.MovieCastPerson
 
 class MovieCastConverter {
-    fun convert(response: MovieCastResponse): MovieCast{
-        return with(response){
+    fun convert(response: MovieCastResponse): MovieCast {
+        return with(response) {
             MovieCast(
                 imdbId = this.imDbId,
                 fullTitle = this.title,
@@ -48,10 +48,10 @@ class MovieCastConverter {
         return directors.items.map { it.toMovieCastPerson() }
     }
 
-    private fun CastItemResponse.toMovieCastPerson(jobPrefix: String = ""): MovieCastPerson{
+    private fun CastItemResponse.toMovieCastPerson(jobPrefix: String = ""): MovieCastPerson {
         return MovieCastPerson(
             id = this.id,
-            name =  this.name,
+            name = this.name,
             description = if (jobPrefix.isEmpty()) this.description else "$jobPrefix -- ${this.description}",
             image = null
         )
